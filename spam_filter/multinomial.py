@@ -1,65 +1,63 @@
 import os
 import math
 import numpy as np
+import enum
 
+MOST_COMMON_WORD = 3000
+SMOOTH_ALPHA = 1.0
+CLASS_NUM = len(Classification)
 
-most_common_word = 3000
-# avoid 0 terms in features
-smooth_alpha = 1.0
-class_num = 2  # we have only two classes: ham and spam
-class_log_prior = [0.0, 0.0]  # probability for two classes
-feature_log_prob = np.zeros(
-    (class_num, most_common_word)
-)  # feature parameterized probability
-SPAM = 1  # spam class label
-HAM = 0  # ham class label
+class_log_prior = [0.0, 0.0]
+feature_log_prob = np.zeros((CLASS_NUM, MOST_COMMON_WORD))
 
+class Classification(enum):
+	HAM = 0
+	SPAM = 1
 
-class Multinomial:
+class MultinomialNaiveBayes:
+    """ Multinomial Naive Bayes """
+    def __init__(self, features, labels):
+		""" Constructor that trains the model using Multinomial NB """
 
-    # multinomial naive bayes
-    def MultinomialNB(self, features, labels):
-        """calculate class_log_prior
-		/**
-		 * loop over labels
-		 * if the value of the term in labels = 1 then ham++ 
-		 * if the value of the term in labels = 0 then spam++
-		 * class_log_prior[0] = Math.log(ham)
-		 * class_log_prior[1] = Math.log(spam)
-		 */
-		//calculate feature_log_prob
-		/**
-		 * nested loop over features
-		 * for row = features.length
-		 *     for col = most_common
-		 *         ham[col] + features[row][col]
-		 *         spam[col] + features[row][col]
-		 *         sum of ham
-		 *         sum of spam
-		 * for i = most_common
-		 *     ham[i] + smooth_alpha
-		 *     spam[i] + smooth_alpha
-		 * sum of ham += most_common*smooth_alpha
-		 * sum of spam += most_common*smooth_alpha
-		 * for j = most_common
-		 *     feature_log_prob[0] = Math.log(ham[i]/sum of ham)
-		 *     feature_log_prob[1] = Math.log(spam[i]/sum of spam)
-		 */"""
+		class_log_prior[Classification.HAM] = math.log(np.sum(labels == Classification.HAM))
+		class_log_prior[Classification.SPAM] = math.log(np.sum(labels == Classification.SPAM))
+		
+		# Calculate feature_log_prob
+		ham_words = list()
+		spam_words = list()
+		ham_sum = 0
+		spam_sum = 0
 
-    # multinomial naive bayes prediction
-    def MultinomialNB_predict(self, features):
-        classes = np.zeros(len(features))
+		# Nested loop over features.
+		for i in range(features.length):
+			for j in range(MOST_COMMON_WORD):
+				ham_words[j] += features[i][j]
+				spam_words[j] += features[i][j]
+				ham_sum += features[i][j]
+				spam_sum += features[i][j]
 
-        ham_prob = 0.0
-        spam_prob = 0.0
-        """/**
-		 * nested loop over features with i and j
-		 * calculate ham_prob and spam_prob
-		 * add ham_prob and spam_prob with class_log_prior
-		 * if ham_prob > spam_prob
-		 * HAM
-		 * else SPAM
-		 * return  classes
-		 */"""
+		# Add smooth alpha value to each item in the words lists.
+		for i in range(MOST_COMMON_WORD):
+			ham_words[i] += SMOOTH_ALPHA
+			spam_words[i] += SMOOTH_ALPHA
+		ham_sum += MOST_COMMON_WORD * SMOOTH_ALPHA
+		spam_sum += MOST_COMMON_WORD * SMOOTH_ALPHA
 
-        return classes
+		for i in range(MOST_COMMON_WORD):
+			feature_log_prob[Classification.HAM][i] = math.log(ham_words[i] / ham_sum)
+			feature_log_prob[Classification.SPAM][i] = math.log(spam_words[i] / spam_sum)
+		 
+    def predict(self, features):
+		""" Classify an email's feature vector. """
+		classes = np.zeros(len(features))
+
+		for i in range(features.length):
+			ham_prob = 0
+			spam_prob = 0
+			for j in range(features[i].length):
+				# TODO: Calculate ham_prob and spam_prob ¯\_(ツ)_/¯
+				ham_prob += class_log_prior[Classification.HAM]
+				spam_prob += class_log_prior[Classification.SPAM]
+			classes[i] = Classification.HAM if ham_prob > spam_prob else Classification.SPAM
+		
+		return classes
