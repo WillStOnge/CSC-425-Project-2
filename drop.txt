@@ -1,0 +1,4 @@
+The maximum of most_common can be:  18821
+Multinomial Naive Bayes:  0.5
+Bernoulli Naive Bayes:  0.5
+Gaussian Naive Bayes:  0.5
