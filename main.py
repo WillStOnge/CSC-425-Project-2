@@ -1,20 +1,13 @@
 # import math
-import os
 from collections import Counter
 from pathlib import Path
 from typing import List, Set
-import ipdb
 import numpy as np
 
 from spam_filter import Bernoulli, Gauss, Multinomial
 
 test_file_path = Path("test-mails")
 train_file_path = Path("train-mails")
-
-wordMap = {}
-commonMap = []
-
-most_common_word = 3000
 
 
 def parse_message(text: str) -> List[str]:
@@ -54,21 +47,20 @@ def generate_feature(path: Path, common_map: Set[str]):
 
 
 def main():
-
-    # construct dictionary
     word_counter = Counter()
-    for file in train_file_path.iterdir():
+    files = list(train_file_path.iterdir())
+
+    for file in files:
         text = file.read_text()
         word_list = parse_message(text)
         word_counter += Counter(word_list)
 
     print("The maximum of most_common can be: ", len(word_counter))
-    common_words = [k for k, v in word_counter.most_common(3000)]
+    common_words = [k for k, _ in word_counter.most_common(3000)]
 
     # construct model
     # training feature matrix
 
-    files = list(train_file_path.iterdir())
     # features = np.zeros((len(files), len(common_words)))
 
     train_features = generate_feature(train_file_path, common_words)
@@ -87,41 +79,31 @@ def main():
     test_labels[test_labels.size // 2 : test_labels.size] = 1.0
 
     # Multinomial Naive Bayes start
-    # print(train_labels)
-    # train model
     multinomial = Multinomial()
     multinomial.MultinomialNB(train_features, train_labels)
-    # test model
     classes = multinomial.MultinomialNB_predict(test_features)
 
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
-    print("Multinomial Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Multinomial Naive Bayes end
+    error = (test_labels == classes).sum()
 
-    # Bernoulli Naive Bayes start
+    print("Multinomial Naive Bayes: ", float(error) / float(len(test_labels)))
+
+    # # Bernoulli Naive Bayes start
     BernoulliNB = Bernoulli()
     BernoulliNB.BernoulliNB(train_features, train_labels)
     classes = BernoulliNB.BernoulliNB_predict(test_features)
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
+
+    error = (test_labels == classes).sum()
+
     print("Bernoulli Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Bernoulli Naive Bayes end
 
     # Gaussian Naive Bayes start
     GaussianNB = Gauss()
     GaussianNB.GaussianNB(train_features, train_labels)
     classes = GaussianNB.GaussianNB_predict(test_features)
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
+
+    error = (test_labels == classes).sum()
+
     print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Gaussian Naive Bayes end
 
 
 if __name__ == "__main__":
