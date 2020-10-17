@@ -1,65 +1,60 @@
-import os
-import math
-import numpy as np
+import math, enum, numpy as np
 
+class Classification(enum.Enum):
+	HAM = 0
+	SPAM = 1
 
-most_common_word = 3000
-# avoid 0 terms in features
-smooth_alpha = 1.0
-class_num = 2  # we have only two classes: ham and spam
-class_log_prior = [0.0, 0.0]  # probability for two classes
-feature_log_prob = np.zeros(
-    (class_num, most_common_word)
-)  # feature parameterized probability
-SPAM = 1  # spam class label
-HAM = 0  # ham class label
+NUM_CLASSES = len(Classification)
+MOST_COMMON_WORD = 3000
+SMOOTH_ALPHA = 1.0
 
+class MultinomialNaiveBayes:
+	""" Multinomial Naive Bayes """
+	class_log_prior = np.zeros(NUM_CLASSES, dtype=np.float64)
+	feature_log_prob = np.zeros((NUM_CLASSES, MOST_COMMON_WORD))
 
-class Multinomial:
+	def __init__(self, features: np.array, labels: np.array):
+		""" Trains the model using Multinomial NB. """
+		self.class_log_prior[Classification.HAM] = math.log(np.sum(labels == Classification.HAM))
+		self.class_log_prior[Classification.SPAM] = math.log(np.sum(labels == Classification.SPAM))
+		
+		# Instructions said these are seperate, but the values are the same?
+		ham_words = np.sum(features, axis=1)
+		spam_words = np.sum(features, axis=1)
 
-    # multinomial naive bayes
-    def MultinomialNB(self, features, labels):
-        """calculate class_log_prior
-		/**
-		 * loop over labels
-		 * if the value of the term in labels = 1 then ham++ 
-		 * if the value of the term in labels = 0 then spam++
-		 * class_log_prior[0] = Math.log(ham)
-		 * class_log_prior[1] = Math.log(spam)
-		 */
-		//calculate feature_log_prob
-		/**
-		 * nested loop over features
-		 * for row = features.length
-		 *     for col = most_common
-		 *         ham[col] + features[row][col]
-		 *         spam[col] + features[row][col]
-		 *         sum of ham
-		 *         sum of spam
-		 * for i = most_common
-		 *     ham[i] + smooth_alpha
-		 *     spam[i] + smooth_alpha
-		 * sum of ham += most_common*smooth_alpha
-		 * sum of spam += most_common*smooth_alpha
-		 * for j = most_common
-		 *     feature_log_prob[0] = Math.log(ham[i]/sum of ham)
-		 *     feature_log_prob[1] = Math.log(spam[i]/sum of spam)
-		 */"""
+		# Instructions said these are seperate, but the values are the same?
+		ham_sum = np.sum(features) + (MOST_COMMON_WORD * SMOOTH_ALPHA)
+		spam_sum = np.sum(features) + (MOST_COMMON_WORD * SMOOTH_ALPHA)
 
-    # multinomial naive bayes prediction
-    def MultinomialNB_predict(self, features):
-        classes = np.zeros(len(features))
+		# Apply smoothing value to each element in the list.
+		for i in range(features.length):
+			ham_words[i] += SMOOTH_ALPHA
+			spam_words[i] += SMOOTH_ALPHA
 
-        ham_prob = 0.0
-        spam_prob = 0.0
-        """/**
-		 * nested loop over features with i and j
-		 * calculate ham_prob and spam_prob
-		 * add ham_prob and spam_prob with class_log_prior
-		 * if ham_prob > spam_prob
-		 * HAM
-		 * else SPAM
-		 * return  classes
-		 */"""
+		# Setup feature_log_prob (this is what the prediction algorithm uses).
+		for i in range(MOST_COMMON_WORD):
+			self.feature_log_prob[Classification.HAM][i] = math.log(ham_words[i] / ham_sum)
+			self.feature_log_prob[Classification.SPAM][i] = math.log(spam_words[i] / spam_sum)
+		
+	def predict(self, features: np.array):
+		""" Classify an array of emails feature vectors. """
+		classes = np.zeros(len(features))
 
-        return classes
+		for i in range(features.length):
+			ham_prob = 0
+			spam_prob = 0
+
+			# Calculate the probability that the email is spam or ham.
+			for j in range(features[i].length):
+				smooth_features = features + SMOOTH_ALPHA
+				smooth_features_sum = smooth_features.sum(axis=1)
+
+				self.feature_log_prob = np.log(smooth_features) - np.log(smooth_features_sum.reshape(-1, 1))
+
+				ham_prob += self.class_log_prior[Classification.HAM]
+				spam_prob += self.class_log_prior[Classification.SPAM]
+
+			# Determine which probability is higher.
+			classes[i] = Classification.HAM if ham_prob > spam_prob else Classification.SPAM
+		
+		return classes
