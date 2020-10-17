@@ -3,7 +3,6 @@ from collections import Counter
 from pathlib import Path
 from typing import List, Set
 import numpy as np
-
 from spam_filter import Bernoulli, Gauss, Multinomial
 
 
@@ -23,7 +22,7 @@ def parse_message(text: str) -> List[str]:
     return word_list
 
 
-def generate_features(path: Path, common_words: List[str]) -> np.ndarray[np.float64]:
+def generate_features(path: Path, common_words: Set[str]):
     """Generates 2D array of where each row is an individual file,
     and each column is score for the occurance of the specific word
 
@@ -43,10 +42,9 @@ def generate_features(path: Path, common_words: List[str]) -> np.ndarray[np.floa
         word_list = parse_message(text)
         file_counter = Counter(word_list)
 
-        common_index = 0
-        for word in common_words:
-
-            if word in file_counter:
+        for word in file_counter:
+            common_index = 0
+            if word in common_words:
                 # ipdb.set_trace()
                 features[files.index(file)][common_index] = file_counter[word]
             common_index += 1
@@ -67,7 +65,7 @@ def main():
         word_counter += Counter(word_list)
 
     print("The maximum of most_common can be: ", len(word_counter))
-    common_words = [k for k, _ in word_counter.most_common(3000)]
+    common_words = {k for k, _ in word_counter.most_common(3000)}
 
     train_features = generate_features(train_file_path, common_words)
 
