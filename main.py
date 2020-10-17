@@ -42,13 +42,13 @@ def generate_features(path: Path, common_words: Set[str]):
         word_list = parse_message(text)
         file_counter = Counter(word_list)
 
+        common_index = 0
         for word in file_counter:
-            common_index = 0
             if word in common_words:
-                # ipdb.set_trace()
                 features[files.index(file)][common_index] = file_counter[word]
+
             common_index += 1
-        # file_index += 1
+
     return features
 
 
@@ -68,8 +68,8 @@ def main():
     common_words = {k for k, _ in word_counter.most_common(3000)}
 
     train_features = generate_features(train_file_path, common_words)
-
     train_labels = np.zeros(len(files))
+
     train_labels[train_labels.size // 2 : train_labels.size] = 1.0
 
     files = list(test_file_path.iterdir())
