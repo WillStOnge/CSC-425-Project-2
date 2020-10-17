@@ -46,8 +46,10 @@ class Gauss:
             sum_ham = 0
             sum_spam = 0
             for j in range(len(features)):
-                sum_ham += features[j][i]
-                sum_spam += features[j][i]
+                if labels[j] == 0:
+                    sum_ham += features[j][i]
+                else:
+                    sum_spam += features[j][i]
             mean[0][i] = sum_ham / (len(labels) - np.count_nonzero(labels))
             mean[1][i] = sum_spam / np.count_nonzero(labels)
         # calculate the stds
@@ -55,10 +57,13 @@ class Gauss:
             seq_ham = 0
             seq_spam = 0
             for y in range(len(features)):
-                seq_ham += math.pow((features[y][x] - mean[0][x]), 2)
-                seq_spam += math.pow((features[y][x] - mean[1][x]), 2)
+                if labels[y] == 0:
+                    seq_ham += math.pow((features[y][x] - mean[0][x]), 2)
+                else:
+                    seq_spam += math.pow((features[y][x] - mean[1][x]), 2)
             std[0][x] = math.sqrt(seq_ham / (len(labels) - np.count_nonzero(labels)))
-            std[1][x] = math.sqrt(seq_ham / np.count_nonzero(labels))
+            std[1][x] = math.sqrt(seq_spam / np.count_nonzero(labels))
+            print("std", std[0][x], "mean", mean[0][x], "\nstd", std[1][x], "mean", mean[1][x])
 
     # Gaussian Naive Bayes prediction
     def GaussianNB_predict(self, features):
