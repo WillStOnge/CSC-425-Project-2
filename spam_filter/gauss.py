@@ -38,7 +38,27 @@ class Gauss:
 		 *         seq_spam +=Math.pow(features[j][i]-mean[1][i], 2);
 		 *      std[0] = Math.sqrt(seq_ham/sum of ham files in labels);
 		 *      std[1] = Math.sqrt(seq_spam/sum of spam files in labels);
-		 */"""
+		 */
+		 """
+
+        # calculate the means
+        for i in range(most_common_word):
+            sum_ham = 0
+            sum_spam = 0
+            for j in range(len(features)):
+                sum_ham += features[j][i]
+                sum_spam += features[j][i]
+            mean[0][i] = sum_ham / (len(labels) - np.count_nonzero(labels))
+            mean[1][i] = sum_spam / np.count_nonzero(labels)
+        # calculate the stds
+        for x in range(most_common_word):
+            seq_ham = 0
+            seq_spam = 0
+            for y in range(len(features)):
+                seq_ham += math.pow((features[y][x] - mean[0][x]), 2)
+                seq_spam += math.pow((features[y][x] - mean[1][x]), 2)
+            std[0][x] = math.sqrt(seq_ham / (len(labels) - np.count_nonzero(labels)))
+            std[1][x] = math.sqrt(seq_ham / np.count_nonzero(labels))
 
     # Gaussian Naive Bayes prediction
     def GaussianNB_predict(self, features):
