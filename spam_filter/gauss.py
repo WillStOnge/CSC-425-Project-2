@@ -21,26 +21,6 @@ std = np.zeros((class_num, most_common_word))
 class Gauss:
     # Gaussian Naive Bayes
     def GaussianNB(self, features, labels):
-        """//calculate mean
-		/**
-		 * for i in most_common
-		 *     for j in features.length
-		 *         sum_ham +=features[j][i];
-		 *         sum_spam +=features[j][i];
-		 *     mean[0] = sum_ham / sum of ham files in labels
-		 *     mean[1] = sum_spam / sum of spam files in labels
-		 */
-		//calculate standard deviation
-		/**
-		 * for i in most_common
-		 *     for j in features.length
-		 *         seq_ham +=Math.pow(features[j][i]-mean[0][i], 2);
-		 *         seq_spam +=Math.pow(features[j][i]-mean[1][i], 2);
-		 *      std[0] = Math.sqrt(seq_ham/sum of ham files in labels);
-		 *      std[1] = Math.sqrt(seq_spam/sum of spam files in labels);
-		 */
-		 """
-
         # calculate the means
         for i in range(most_common_word):
             sum_ham = 0
@@ -52,7 +32,7 @@ class Gauss:
                     sum_spam += features[j][i]
             mean[0][i] = sum_ham / (len(labels) - np.count_nonzero(labels))
             mean[1][i] = sum_spam / np.count_nonzero(labels)
-        # calculate the stds
+        # calculate the standard deviations
         for x in range(most_common_word):
             seq_ham = 0
             seq_spam = 0
@@ -83,5 +63,7 @@ class Gauss:
 		 * else SPAM
 		 * return  classes
 		 */"""
+        for i in range(most_common_word):
+            for j in range(len(features)):
 
         return classes
