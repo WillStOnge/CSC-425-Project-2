@@ -112,13 +112,13 @@ def main():
 
     # Gaussian Naive Bayes start
     GaussianNB = Gauss()
-    return GaussianNB.GaussianNB(train_features, train_labels)
+    GaussianNB.GaussianNB(train_features, train_labels)
     classes = GaussianNB.GaussianNB_predict(test_features)
-    # error = 0
-    # for i in range(len(files)):
-    #     if test_labels[i] == classes[i]:
-    #         error += 1
-    # print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
+    error = 0
+    for i in range(len(files)):
+        if test_labels[i] == classes[i]:
+            error += 1
+    print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
     # Gaussian Naive Bayes end
 
 
