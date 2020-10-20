@@ -8,43 +8,6 @@ import numpy as np
 
 from spam_filter import Bernoulli, Gauss, MultinomialNaiveBayes
 
-# read file anmes in the specific file path
-
-
-def parse_message(text: str) -> List[str]:
-    """Processes raw text message into a list of words without symbols
-    Args:
-        text (str): Message to be processed
-    Returns:
-        List[str]: array of words
-    """
-    word_list = text.replace("\n", " ").split(" ")
-    word_list = [word for word in word_list if word.isalpha()]
-
-    return word_list
-
-
-# generate features according to commonMap
-def generate_feature(common_map: List[str], path: Path) -> List[List[str]]:
-    files = list(path.iterdir())
-    dimensions = (len(files), len(common_map))
-    features = np.zeros(dimensions)
-
-    file_index = 0
-    for file in files:
-        text = file.read_text()
-        word_list = parse_message(text)
-        word_counter = Counter(word_list)
-
-        common_index = 0
-        for key in common_map:
-            if key in word_counter:
-                features[file_index][common_index] = word_counter[key]
-
-            common_index += 1
-        file_index += 1
-    return features
-
 
 def main():
 
@@ -74,7 +37,7 @@ def main():
 
     # training labels
     train_labels = np.zeros(len(files))
-    train_labels[train_labels.size // 2:train_labels.size] = 1.0
+    train_labels[train_labels.size // 2 : train_labels.size] = 1.0
 
     files = list(test_file_path.iterdir())
     # testing feature matrix
@@ -82,7 +45,7 @@ def main():
 
     # testing labels
     test_labels = np.zeros(len(files))
-    test_labels[test_labels.size // 2:test_labels.size] = 1.0
+    test_labels[test_labels.size // 2 : test_labels.size] = 1.0
 
     # ---------------------------------------------------------------------------- #
     #                                  Runner Code                                 #
@@ -115,6 +78,49 @@ def main():
             error += 1
     print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
     # Gaussian Naive Bayes end
+
+
+def parse_message(text: str) -> List[str]:
+    """Processes raw text message into a list of words without symbols
+    Args:
+        text (str): Message to be processed
+    Returns:
+        List[str]: array of words
+    """
+    word_list = text.replace("\n", " ").split(" ")
+    word_list = [word for word in word_list if word != "" and word[0].isalpha()]
+
+    return word_list
+
+
+def generate_feature(common_map: List[str], path: Path) -> List[List[str]]:
+    """Generates a 2 dimensional feature array of shape (file, common_word)
+
+    Args:
+        common_map (List[str]): list of common words
+        path (Path): a path to the directory of test files
+
+    Returns:
+        List[List[str]]: feature array of shape (file, common_word)
+    """
+    files = list(path.iterdir())
+    dimensions = (len(files), len(common_map))
+    features = np.zeros(dimensions)
+
+    file_index = 0
+    for file in files:
+        text = file.read_text()
+        word_list = parse_message(text)
+        word_counter = Counter(word_list)
+
+        common_index = 0
+        for key in common_map:
+            if key in word_counter:
+                features[file_index][common_index] = word_counter[key]
+
+            common_index += 1
+        file_index += 1
+    return features
 
 
 if __name__ == "__main__":
