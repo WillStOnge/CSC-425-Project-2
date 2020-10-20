@@ -6,7 +6,7 @@ from typing import List
 
 import numpy as np
 
-from spam_filter import Bernoulli, Gauss, Multinomial
+from spam_filter import Bernoulli, Gauss, MultinomialNaiveBayes
 
 # read file anmes in the specific file path
 
@@ -88,16 +88,11 @@ def main():
     #                                  Runner Code                                 #
     # ---------------------------------------------------------------------------- #
 
-    MultinomialNB = Multinomial()
-    MultinomialNB.MultinomialNB(train_features, train_labels)
-    # test model
-    classes = MultinomialNB.MultinomialNB_predict(test_features)
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
-    print("Multinomial Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Multinomial Naive Bayes end
+    # Multinomial Naive Bayes
+    multinomial = MultinomialNaiveBayes(train_features, train_labels)
+    classes = multinomial.predict(test_features)
+    error = (test_labels == classes).sum()
+    print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
     # Bernoulli Naive Bayes start
     BernoulliNB = Bernoulli()
