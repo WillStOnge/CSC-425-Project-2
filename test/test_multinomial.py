@@ -1,16 +1,16 @@
-import unittest, numpy as np
-from spam_filter import MultinomialNaiveBayes
+import os, numpy as np
 from collections import Counter
 from pathlib import Path
 from sklearn.naive_bayes import MultinomialNB
+from spam_filter import MultinomialNaiveBayes
 
-def parse_message(text: str) -> List[str]:
+def parse_message(text: str):
     word_list = text.replace("\n", " ").split(" ")
     word_list = [word for word in word_list if word.isalpha()]
 
     return word_list
 
-def generate_features(path: Path, common_words: Set[str]):
+def generate_features(path: Path, common_words):
     files = list(path.iterdir())
     features = np.zeros((len(files), len(common_words)))
 
@@ -28,10 +28,11 @@ def generate_features(path: Path, common_words: Set[str]):
 
     return features
 
-def runTest(self):
-    # Reused code from main.py
-    test_file_path = Path("../test-mails")
-    train_file_path = Path("../train-mails")
+def runTest():
+    """ Tests our Multinomial Naive Bayes implementation. """
+    # Setup training and testing data
+    test_file_path = Path("test-mails")
+    train_file_path = Path("train-mails")
 
     word_counter = Counter()
     files = list(train_file_path.iterdir())
@@ -54,17 +55,19 @@ def runTest(self):
     test_labels = np.zeros(len(files))
     test_labels[test_labels.size // 2 : test_labels.size] = 1.0
 
-    multinomial = MultinomialNaiveBayes()
-    multinomial.MultinomialNB(train_features, train_labels)
-    classes = multinomial.MultinomialNB_predict(test_features)
+    # Our implementation
+    multinomial = MultinomialNaiveBayes(train_features, train_labels)
+    classes = multinomial.predict(test_features)
     error = (test_labels == classes).sum()
 
+    # SKLearn's implementation
     multinomial_sklearn = MultinomialNB()
     multinomial_sklearn.fit(train_features, train_labels)
-    classes_sklearn = multinomial.predict(test_features)
+    classes_sklearn = multinomial_sklearn.predict(test_features)
     error_sklearn = (test_labels == classes_sklearn).sum()
 
-    assert(error == error_sklearn, "Error values are not the same. Our error: " + error + ", SKLearn's error: " + error_sklearn)
+    print("Our Error:     {}%".format(error / test_labels.shape[0] * 100))
+    print("SKLearn Error: {}%".format(error_sklearn / test_labels.shape[0] * 100))
 
 if __name__ == "__main__":
     runTest()
