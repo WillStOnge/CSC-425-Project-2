@@ -33,7 +33,7 @@ def main():
 
     common_map = [w for w, _ in word_counter.most_common(3000)]
 
-    train_features = generate_feature(common_map, train_file_path)
+    train_features = generate_features(common_map, train_file_path)
 
     # training labels
     train_labels = np.zeros(len(files))
@@ -41,7 +41,7 @@ def main():
 
     files = list(test_file_path.iterdir())
     # testing feature matrix
-    test_features = generate_feature(common_map, test_file_path)
+    test_features = generate_features(common_map, test_file_path)
 
     # testing labels
     test_labels = np.zeros(len(files))
@@ -93,7 +93,7 @@ def parse_message(text: str) -> List[str]:
     return word_list
 
 
-def generate_feature(common_map: List[str], path: Path) -> List[List[str]]:
+def generate_features(common_map: List[str], path: Path) -> List[List[str]]:
     """Generates a 2 dimensional feature array of shape (file, common_word)
 
     Args:
