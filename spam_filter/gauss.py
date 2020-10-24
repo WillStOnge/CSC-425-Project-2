@@ -18,7 +18,7 @@ mean = np.zeros((class_num, most_common_word))
 std = np.zeros((class_num, most_common_word))
 
 
-class Gauss:
+class GaussianNB:
     # Gaussian Naive Bayes
     def GaussianNB(self, features, labels):
         """//calculate mean
