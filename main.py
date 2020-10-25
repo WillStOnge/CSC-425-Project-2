@@ -10,23 +10,17 @@ def main():
     train_file_path = Path("train-mails")
     files = list(train_file_path.iterdir())
 
-    # ---------------------------------------------------------------------------- #
-    #                        Count total words per all files                       #
-    # ---------------------------------------------------------------------------- #
-
+    # Count total words per all files
     word_counter = Counter()
     for file in files:
         text = file.read_text()
         word_list = parse_message(text)
         word_counter += Counter(word_list)
 
-    print(f"The maximum of most_common can be: {len(word_counter)}")
-
-    # ---------------------------------------------------------------------------- #
-    #                               Compute common                                 #
-    # ---------------------------------------------------------------------------- #
+    # Compute common
     common_map = [w for w, _ in word_counter.most_common(3000)]
 
+    # Training feature matrix
     train_features = generate_features(common_map, train_file_path)
 
     # Training labels
@@ -34,6 +28,7 @@ def main():
     train_labels[train_labels.size // 2 : train_labels.size] = 1.0
     
     files = list(test_file_path.iterdir())
+
     # Testing feature matrix
     test_features = generate_features(common_map, test_file_path)
 
@@ -45,27 +40,23 @@ def main():
             test_labels[c] = 1
         c += 1
 
-    # ---------------------------------------------------------------------------- #
-    #                                  Runner Code                                 #
-    # ---------------------------------------------------------------------------- #
-
-    # Multinomial Naive Bayes
+    # Run Multinomial Naive Bayes
     multinomial = MultinomialNB(train_features, train_labels)
     classes = multinomial.predict(test_features)
     error = (test_labels == classes).sum()
     print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
-    # Bernoulli Naive Bayes
+    # Run Bernoulli Naive Bayes
     bernoulli = BernoulliNB(train_features, train_labels)
     classes = bernoulli.predict(test_features)
     error = (test_labels == classes).sum()
     print("Bernoulli Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
-    # Gaussian Naive Bayes
+    # Run Gaussian Naive Bayes
     gaussian = GaussianNB(train_features, train_labels)
     classes = gaussian.predict(test_features)
     error = (test_labels == classes).sum()
-    print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
+    print("Gaussian Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
 
 def parse_message(text: str) -> List[str]:
