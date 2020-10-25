@@ -38,7 +38,12 @@ def main():
 
     # training labels
     train_labels = np.zeros(len(files))
-    train_labels[train_labels.size // 2 : train_labels.size] = 1.0
+    c = 0
+    for file in files:
+        if "spm" in os.path.basename(file):
+            train_labels[c] = 1
+        c += 1
+    #train_labels[train_labels.size // 2 : train_labels.size] = 1.0
 
     files = list(test_file_path.iterdir())
     # testing feature matrix
@@ -46,7 +51,13 @@ def main():
 
     # testing labels
     test_labels = np.zeros(len(files))
-    test_labels[test_labels.size // 2 : test_labels.size] = 1.0
+    c = 0
+    for file in files:
+        if "spm" in os.path.basename(file):
+            test_labels[c] = 1
+        c += 1
+    #test_labels[test_labels.size // 2 : test_labels.size] = 1.0
+    print("spam files: ", np.count_nonzero(test_labels))
 
     # ---------------------------------------------------------------------------- #
     #                                  Runner Code                                 #
@@ -62,30 +73,44 @@ def main():
     BernoulliNB = Bernoulli()
     BernoulliNB.BernoulliNB(train_features, train_labels)
     classes = BernoulliNB.BernoulliNB_predict(test_features)
-    error = 0
+    errorHam = 0
+    errorSpam = 0
     for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
-    print("Bernoulli Naive Bayes: ", float(error) / float(len(test_labels)))
+        if test_labels[i] == 0 and test_labels[i] != classes[i]:
+            errorHam += 1
+        elif test_labels[i] == 1 and test_labels[i] != classes[i]:
+            errorSpam += 1
+    print("Bernoulli Naive Bayes Ham error: ", float(errorHam) / float(len(test_labels) - np.count_nonzero(test_labels)), "Spam Error: ", float(errorSpam) / float(np.count_nonzero(test_labels)))
     # Bernoulli Naive Bayes end
 
     # Gaussian Naive Bayes start
+    print("SK Start")
     gaussiannb = GaussianNB()
     gaussiannb.fit(train_features, train_labels)
     testClasses = gaussiannb.predict(test_features)
+    print("SK Finish")
+    print("Mine Start")
     Gaus = Gauss()
     Gaus.GaussianNBMe(train_features, train_labels)
     classes = Gaus.GaussianNB_predict(test_features)
-    error = 0
-    skerror = 0
+    print("Mine Finish")
+    errorHam = 0
+    errorSpam = 0
     for i in range(len(files)):
-        if test_labels[i] != classes[i]:
-            error += 1
-    print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
-    for j in range(len(files)):
-        if test_labels[j] != testClasses[j]:
-            skerror += 1
-    print("SkLearn Gauss: ", float(skerror) / float(len(test_labels)))
+        if test_labels[i] == 0 and test_labels[i] != classes[i]:
+            errorHam += 1
+        elif test_labels[i] == 1 and test_labels[i] != classes[i]:
+            errorSpam += 1
+    print("Gaussian Naive Bayes Ham error: ", float(errorHam) / float(len(test_labels) - np.count_nonzero(test_labels)), "Spam Error: ", float(errorSpam) / float(np.count_nonzero(test_labels)))
+    errorHam = 0
+    errorSpam = 0
+    for i in range(len(files)):
+        if test_labels[i] == 0 and test_labels[i] != classes[i]:
+            errorHam += 1
+        elif test_labels[i] == 1 and test_labels[i] != classes[i]:
+            errorSpam += 1
+    print("SkLearn Gauss Ham error: ", float(errorHam) / float(len(test_labels) - np.count_nonzero(test_labels)), "Spam Error: ", float(errorSpam) / float(np.count_nonzero(test_labels)))
+    print("files: ", len(files))
     # Gaussian Naive Bayes end
 
 

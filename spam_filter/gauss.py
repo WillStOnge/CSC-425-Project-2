@@ -50,21 +50,6 @@ class Gauss:
     # Gaussian Naive Bayes prediction
     def GaussianNB_predict(self, features):
         classes = np.zeros(len(features))
-
-        ham_prob = 0.0
-        spam_prob = 0.0
-        """//calculate the Gaussian value for each feature
-             and summ over one specific file
-		/**
-		 * nested loop over features with i and j
-		 * calculate ham_prob and spam_prob
-		 * 1.0/(std*Math.sqrt(2.0*Math.PI))*
-		   Math.exp(-(Math.pow((features[i][j]-mean), 2)/2.0*Math.pow(std, 2)));
-		 * if ham_prob > spam_prob
-		 * HAM
-		 * else SPAM
-		 * return  classes
-		 */"""
         for i in range(len(features)):
             ham_prob = 0
             spam_prob = 0
