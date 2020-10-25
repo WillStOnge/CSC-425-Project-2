@@ -1,16 +1,11 @@
-import math
-import os
+import math, os, numpy as np
 from collections import Counter
 from pathlib import Path
 from typing import List
-import numpy as np
-
-from spam_filter import Bernoulli, Gauss, MultinomialNaiveBayes
-
+from spam_filter import BernoulliNB, GaussianNB, MultinomialNB
 
 
 def main():
-
     test_file_path = Path("test-mails")
     train_file_path = Path("train-mails")
     files = list(train_file_path.iterdir())
@@ -34,79 +29,43 @@ def main():
 
     train_features = generate_features(common_map, train_file_path)
 
-    # training labels
+    # Training labels
     train_labels = np.zeros(len(files))
     train_labels[train_labels.size // 2 : train_labels.size] = 1.0
     
     files = list(test_file_path.iterdir())
-    # testing feature matrix
+    # Testing feature matrix
     test_features = generate_features(common_map, test_file_path)
 
-    # testing labels
+    # Testing labels
     test_labels = np.zeros(len(files))
     c = 0
     for file in files:
         if "spm" in os.path.basename(file):
             test_labels[c] = 1
         c += 1
-    #test_labels[test_labels.size // 2 : test_labels.size] = 1.0
-    print("spam files: ", np.count_nonzero(test_labels))
 
     # ---------------------------------------------------------------------------- #
     #                                  Runner Code                                 #
     # ---------------------------------------------------------------------------- #
 
     # Multinomial Naive Bayes
-#    Multinomial = multinomial(train_features, train_labels)
- #   classes = multinomial.predict(test_features)
-  #  error = (test_labels == classes).sum()
-   # print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
-
-    # Bernoulli Naive Bayes start
-    BernoulliNB = Bernoulli()
-    BernoulliNB.BernoulliNB(train_features, train_labels)
-    classes = BernoulliNB.BernoulliNB_predict(test_features)
-    errorHam = 0
-    errorSpam = 0
-    for i in range(len(files)):
-        if test_labels[i] == 0 and test_labels[i] != classes[i]:
-            errorHam += 1
-        elif test_labels[i] == 1 and test_labels[i] != classes[i]:
-            errorSpam += 1
-    print("Bernoulli Naive Bayes Ham error: ", float(errorHam) / float(len(test_labels) - np.count_nonzero(test_labels)), "Spam Error: ", float(errorSpam) / float(np.count_nonzero(test_labels)))
-    # Bernoulli Naive Bayes end
-
-    # ---------------------------------------------------------------------------- #
-    #                                  Runner Code                                 #
-    # ---------------------------------------------------------------------------- #
-
-    # Multinomial Naive Bayes
-    multinomial = MultinomialNaiveBayes(train_features, train_labels)
+    multinomial = MultinomialNB(train_features, train_labels)
     classes = multinomial.predict(test_features)
     error = (test_labels == classes).sum()
     print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
-    # Bernoulli Naive Bayes start
-    BernoulliNB = Bernoulli()
-    BernoulliNB.BernoulliNB(train_features, train_labels)
-    classes = BernoulliNB.BernoulliNB_predict(test_features)
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
-    print("Bernoulli Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Bernoulli Naive Bayes end
+    # Bernoulli Naive Bayes
+    bernoulli = BernoulliNB(train_features, train_labels)
+    classes = bernoulli.predict(test_features)
+    error = (test_labels == classes).sum()
+    print("Bernoulli Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
-    # Gaussian Naive Bayes start
-    GaussianNB = Gauss()
-    GaussianNB.GaussianNB(train_features, train_labels)
-    classes = GaussianNB.GaussianNB_predict(test_features)
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
-    print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Gaussian Naive Bayes end
+    # Gaussian Naive Bayes
+    gaussian = GaussianNB(train_features, train_labels)
+    classes = gaussian.predict(test_features)
+    error = (test_labels == classes).sum()
+    print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
 
 def parse_message(text: str) -> List[str]:
