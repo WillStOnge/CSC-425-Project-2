@@ -17,7 +17,8 @@ class MultinomialNB:
     def __init__(self, features: np.array, labels: np.array):
         """ Trains the model using Multinomial NB. """
         self.feature_log_prob = np.zeros((NUM_CLASSES, MOST_COMMON_WORD))
-
+        b = mb()
+        ddd = b.fit(features, labels)
         # Get distribution of ham vs spam in training set.
         self.class_log_prior = generate_class_log_prior(labels)
 

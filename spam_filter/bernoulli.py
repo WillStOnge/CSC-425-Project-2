@@ -2,6 +2,7 @@ import math
 import numpy as np
 import ipdb
 from sklearn.naive_bayes import BernoulliNB as sbnb
+from sklearn.utils.extmath import safe_sparse_dot
 from spam_filter import (
     generate_class_log_prior,
     Classification,
@@ -21,35 +22,27 @@ class BernoulliNB:
         self.features = features
         self.features[features != 0] = 1
 
-        self.feature_log_prob = np.zeros((NUM_CLASSES, MOST_COMMON_WORD))
+        # Fix the labels, so you can actually do the math
 
-        # Get distribution of ham vs spam in training set.
+        # Count of each feature, same as co
         self.class_log_prior = generate_class_log_prior(labels)
 
-        # Numerator of conditional probabilty
-        ham_words = np.zeros(MOST_COMMON_WORD)
-        spam_words = np.zeros(MOST_COMMON_WORD)
+        self.class_count = (
+            np.array([(labels == 0).sum(), (labels == 1).sum()]) + SMOOTH_ALPHA * 2
+        )
 
-        # Denominator of conditional probabilty
-        ham_sum = 0
-        spam_sum = 0
+        # Translate 1D array into 2D array with first being the inverse of the second array.
+        # Because a lot of numpy magic needs the arrays to be equal.
+        fixed_labels = np.array([1 - labels, labels])
 
-        for i in range(features.shape[0]):
-            for j in range(features.shape[1]):
-                if labels[i] == Classification.HAM.value:
-                    ham_words[j] += features[i][j] + SMOOTH_ALPHA
-                else:
-                    spam_words[j] += features[i][j] + SMOOTH_ALPHA
+        self.feature_count = np.zeros((NUM_CLASSES, MOST_COMMON_WORD), dtype=np.float64)
+        self.feature_count += np.dot(fixed_labels, self.features) + SMOOTH_ALPHA
 
-        ham_sum = ham_words.sum() + SMOOTH_ALPHA * 2
-        spam_sum = spam_words.sum() + SMOOTH_ALPHA * 2
+        self.feature_log_prob = np.log(self.feature_count) - np.log(
+            self.class_count.reshape(-1, 1)
+        )
 
-        for i in range(features.shape[1]):
-            self.feature_log_prob[Classification.HAM.value][i] = ham_words[i] / ham_sum
-
-            self.feature_log_prob[Classification.SPAM.value][i] = (
-                spam_words[i] / spam_sum
-            )
+        ipdb.set_trace()
 
     def predict(self, features):
         """ Classify an array of emails feature vectors. """
