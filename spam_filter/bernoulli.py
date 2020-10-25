@@ -14,7 +14,7 @@ SPAM = 1  # spam class label
 HAM = 0  # ham class label
 
 
-class Bernoulli:
+class BernoulliNB:
 
 # Bernoulli Naive Bayes
 	def BernoulliNB(self, features, labels):

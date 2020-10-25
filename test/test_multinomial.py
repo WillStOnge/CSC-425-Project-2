@@ -1,7 +1,7 @@
 import os, numpy as np
 from collections import Counter
 from pathlib import Path
-from spam_filter import MultinomialNaiveBayes
+from spam_filter import MultinomialNB
 from unittest import TestCase
 from main import parse_message, generate_features
 
@@ -33,9 +33,7 @@ class TestMultinomial(TestCase):
 
     def runTest(self):
         """ Tests our Multinomial Naive Bayes implementation. """
-        # Setup training and testing data
-
-        multinomial = MultinomialNaiveBayes(self.train_features, self.train_labels)
+        multinomial = MultinomialNB(self.train_features, self.train_labels)
         classes = multinomial.predict(self.test_features)
         error = (self.test_labels == classes).sum()
 

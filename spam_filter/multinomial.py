@@ -11,7 +11,7 @@ MOST_COMMON_WORD = 3000
 SMOOTH_ALPHA = 1.0
 
 
-class MultinomialNaiveBayes:
+class MultinomialNB:
     """ Multinomial Naive Bayes """
 
     class_log_prior: np.ndarray
