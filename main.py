@@ -46,21 +46,17 @@ def main():
     # testing labels
     test_labels = np.zeros(len(files))
     test_labels[test_labels.size // 2 : test_labels.size] = 1.0
+    import ipdb
 
     # ---------------------------------------------------------------------------- #
     #                                  Runner Code                                 #
     # ---------------------------------------------------------------------------- #
 
-    b = FeelTheBern()
-    nb = b.fit(train_features, train_labels)
-    bcc = b.predict(test_features)
-    classes_sklearn = nb.predict(test_features)
-    error_sklearn = (test_labels == classes_sklearn).sum()
     # Multinomial Naive Bayes
-    # multinomial = MultinomialNB(train_features, train_labels)
-    # classes = multinomial.predict(test_features)
-    # error = (test_labels == classes).sum()
-    # print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
+    multinomial = MultinomialNB(train_features, train_labels)
+    classes = multinomial.predict(test_features)
+    error = (test_labels == classes).sum()
+    print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
     # Bernoulli Naive Bayes start
     bernoulli = BernoulliNB(train_features, train_labels)
@@ -68,19 +64,19 @@ def main():
 
     error = (test_labels == classes).sum()
 
-    print("Bernoulli Naive Bayes: ", float(error) / float(len(test_labels)))
-    print("Bernoulli Naive Bayes: ", float(error_sklearn) / float(len(train_labels)))
+    print("Bernoulli Naive Bayes:: {:.2f}%".format(error / test_labels.shape[0] * 100))
+
     # Bernoulli Naive Bayes end
 
     # Gaussian Naive Bayes start
-    # GaussianNB = Gauss()
-    # GaussianNB.GaussianNB(train_features, train_labels)
-    # classes = GaussianNB.GaussianNB_predict(test_features)
-    # error = 0
-    # for i in range(len(files)):
-    #     if test_labels[i] == classes[i]:
-    #         error += 1
-    # print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
+    gauss = GaussianNB()
+    gauss.GaussianNB(train_features, train_labels)
+    classes = gauss.GaussianNB_predict(test_features)
+    error = 0
+    for i in range(len(files)):
+        if test_labels[i] == classes[i]:
+            error += 1
+    print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
     # Gaussian Naive Bayes end
 
 
