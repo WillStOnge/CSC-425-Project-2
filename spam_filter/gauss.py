@@ -82,5 +82,4 @@ class GaussianNB:
                 if ham_prob > spam_prob
                 else Classification.SPAM.value
             )
-
         return classes

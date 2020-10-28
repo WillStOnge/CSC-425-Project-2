@@ -40,4 +40,3 @@ class TestGaussian(TestCase):
         error_percent = error / self.test_labels.shape[0] * 100
         print(error_percent)
         self.assertAlmostEqual(82.3076923076923, error_percent, 0.0005)
-

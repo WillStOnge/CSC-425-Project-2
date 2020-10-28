@@ -1,78 +1,47 @@
-import os
-import math
-import numpy as np
-
-most_common_word = 3000
-# avoid 0 terms in features
-smooth_alpha = 1.0
-class_num = 2  # we have only two classes: ham and spam
-class_log_prior = [0.0, 0.0]  # probability for two classes
-feature_log_prob = np.zeros(
-(class_num, most_common_word)
-)  # feature parameterized probability
-SPAM = 1  # spam class label
-HAM = 0  # ham class label
+import math, numpy as np
+from spam_filter import (
+    generate_class_log_prior,
+    Classification,
+    SMOOTH_ALPHA,
+    MOST_COMMON_WORD,
+    NUM_CLASSES,
+)
 
 
 class BernoulliNB:
+    feature_log_prob: np.ndarray
+    # Bernoulli Naive Bayes
+    def __init__(self, features, labels):
+        # Convert features to l0-norm
+        self.features = features
+        self.features[features != 0] = 1
 
-# Bernoulli Naive Bayes
-	def BernoulliNB(self, features, labels):
-		"""//convert features to l0-norm
-		/**
-		* loop over features with i and j
-		* features[i][j] > 0 ? 1 : 0;
-		*/
-		//calculate class_log_prior
-		/**
-		* loop over labels
-		* if the value of the term in labels = 1 then ham++ 
-		* if the value of the term in labels = 0 then spam++
-		* class_log_prior[0] = Math.log(ham)
-		* class_log_prior[1] = Math.log(spam)
-		*/
-		//calculate feature_log_prob
-		/**
-		* nested loop over features
-		* for row = features.length
-		*     for col = most_common
-		*         ham[col] + features[row][col]
-		*         spam[col] + features[row][col]
-		* for i = most_common
-		*     ham[i] + smooth_alpha
-		*     spam[i] + smooth_alpha
-		* sum of ham = files in ham + smooth_alpha*2 //difference between Multinomial and Bernoulli
-		* sum of spam = files in spam + smooth_alpha*2 //difference between Multinomial and Bernoulli
-		* for j = most_common
-		*     feature_log_prob[0] = ham[i]/sum of ham //no log here
-		*     feature_log_prob[1] = spam[i]/sum of spam //no log here
-		*/"""
-		pass
+        # Count of each feature, same as co
+        self.class_log_prior = generate_class_log_prior(labels)
 
-		# Bernoulli Naive Bayes prediction
-	def BernoulliNB_predict(self, features):
-		"""
-		//convert features to l0-norm
-		/**
-		* loop over features with i and j
-		* features[i][j] > 0 ? 1 : 0;
-		*/
-		"""
+        self.class_count = (
+            np.array([(labels == 0).sum(), (labels == 1).sum()]) + SMOOTH_ALPHA * 2
+        )
 
-		classes = np.zeros(len(features))
+        fixed_labels = np.array([1 - labels, labels])
+        self.feature_count = np.zeros((NUM_CLASSES, MOST_COMMON_WORD), dtype=np.float64)
+        self.feature_count += np.dot(fixed_labels, self.features) + SMOOTH_ALPHA
 
-		ham_prob = 0.0
-		spam_prob = 0.0
-		"""/**
-		* nested loop over features with i and j
-		* calculate ham_prob and spam_prob
-		*     Math.log(feature_log_prob)*(double)features[i][j] + 
-		*         Math.log(1-feature_log_prob)*Math.abs(1-features[i][j])
-		* add ham_prob and spam_prob with class_log_prior
-		* if ham_prob > spam_prob
-		* HAM
-		* else SPAM
-		* return  classes
-		*/"""
+        self.feature_log_prob = np.log(self.feature_count) - np.log(
+            self.class_count.reshape(-1, 1)
+        )
 
-		return classes
+    def predict(self, features):
+        fixed_features = features
+        fixed_features[features != 0] = 1
+
+        negative_p = np.log(1 - np.exp(self.feature_log_prob))
+
+        log_prob = (
+            np.dot(fixed_features, (self.feature_log_prob - negative_p).T)
+            + self.class_log_prior
+            + negative_p.sum(axis=1)
+        )
+
+        classes = np.array([Classification.HAM.value, Classification.SPAM.value])
+        return classes[np.argmax(log_prob, axis=1)]
