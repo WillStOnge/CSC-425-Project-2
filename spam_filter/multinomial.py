@@ -27,46 +27,26 @@ class MultinomialNB:
         spam_sum = MOST_COMMON_WORD * SMOOTH_ALPHA
 
         for i in range(features.shape[0]):
-            for j in range(features.shape[1]):
-                if labels[i] == Classification.HAM.value:
-                    ham_words[j] += features[i][j]
-                    ham_sum += features[i][j]
-                else:
-                    spam_words[j] += features[i][j]
-                    spam_sum += features[i][j]
+            if labels[i] == Classification.HAM.value:
+                ham_words += features[i]
+                ham_sum += np.sum(features[i])
+            else:
+                spam_words += features[i]
+                spam_sum += np.sum(features[i])
 
-        for i in range(features.shape[1]):
-            self.feature_log_prob[Classification.HAM.value][i] = math.log(
-                ham_words[i] / ham_sum
-            )
-            self.feature_log_prob[Classification.SPAM.value][i] = math.log(
-                spam_words[i] / spam_sum
-            )
+        self.feature_log_prob[Classification.HAM.value] = np.log(ham_words / ham_sum)
+        self.feature_log_prob[Classification.SPAM.value] = np.log(spam_words / spam_sum)
+
 
     def predict(self, features: np.array):
         """ Classify an array of emails feature vectors. """
         classes = np.zeros(features.shape[0])
 
-        word_occurences = np.sum(features, axis=0)
-
-        # Loop through each email
         for i in range(features.shape[0]):
-            ham_prob = 0
-            spam_prob = 0
             # Calculate the probability that the email is spam or ham.
-            for j in range(features.shape[1]):
-                ham_prob += (
-                    self.feature_log_prob[Classification.HAM.value][j] * features[i][j]
-                )
-                spam_prob += (
-                    self.feature_log_prob[Classification.SPAM.value][j] * features[i][j]
-                )
+            ham_prob = np.sum(self.feature_log_prob[Classification.HAM.value] * features[i]) + self.class_log_prior[Classification.HAM.value]
+            spam_prob = np.sum(self.feature_log_prob[Classification.SPAM.value] * features[i]) + self.class_log_prior[Classification.SPAM.value]
 
-            # Add class_log_prior value
-            ham_prob += self.class_log_prior[Classification.HAM.value]
-            spam_prob += self.class_log_prior[Classification.SPAM.value]
-
-            # Determine which probability is higher.
             classes[i] = (
                 Classification.HAM.value
                 if ham_prob > spam_prob
