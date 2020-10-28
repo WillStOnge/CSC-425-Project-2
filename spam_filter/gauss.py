@@ -72,9 +72,9 @@ class GaussianNB:
             # Calculate probabilities
             for j in range(len(feature_log_prob[Classification.HAM.value])):
                 if feature_log_prob[Classification.HAM.value][j] != 0:
-                    ham_prob += math.log(feature_log_prob[Classification.HAM.value][j]) + math.log(self.class_log_prior[Classification.HAM.value])
+                    ham_prob += math.log(feature_log_prob[Classification.HAM.value][j]) + math.log(abs(self.class_log_prior[Classification.HAM.value]))
                 if feature_log_prob[Classification.SPAM.value][j] != 0:
-                    spam_prob += math.log(feature_log_prob[Classification.SPAM.value][j]) + math.log(self.class_log_prior[Classification.SPAM.value])
+                    spam_prob += math.log(feature_log_prob[Classification.SPAM.value][j]) + math.log(abs(self.class_log_prior[Classification.SPAM.value]))
 
             # Determine which probability is higher.
             classes[i] = (
