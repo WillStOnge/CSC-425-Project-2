@@ -1,8 +1,4 @@
-import math
-import numpy as np
-import ipdb
-from sklearn.naive_bayes import BernoulliNB as sbnb
-from sklearn.utils.extmath import safe_sparse_dot
+import math, numpy as np
 from spam_filter import (
     generate_class_log_prior,
     Classification,
@@ -13,12 +9,10 @@ from spam_filter import (
 
 
 class BernoulliNB:
-
     feature_log_prob: np.ndarray
     # Bernoulli Naive Bayes
     def __init__(self, features, labels):
-
-        # convert features to l0-norm
+        # Convert features to l0-norm
         self.features = features
         self.features[features != 0] = 1
 
@@ -51,4 +45,3 @@ class BernoulliNB:
 
         classes = np.array([Classification.HAM.value, Classification.SPAM.value])
         return classes[np.argmax(log_prob, axis=1)]
-

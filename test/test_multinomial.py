@@ -33,12 +33,9 @@ class TestMultinomial(TestCase):
 
     def runTest(self):
         """ Tests our Multinomial Naive Bayes implementation. """
-        # Setup training and testing data
-
         multinomial = MultinomialNB(self.train_features, self.train_labels)
         classes = multinomial.predict(self.test_features)
         error = (self.test_labels == classes).sum()
 
         error_percent = error / self.test_labels.shape[0] * 100
         self.assertAlmostEqual(96.15384615384616, error_percent, 0.0005)
-

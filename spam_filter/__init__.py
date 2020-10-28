@@ -14,11 +14,9 @@ SMOOTH_ALPHA = 1.0
 
 
 def generate_class_log_prior(labels: np.ndarray):
-
     return np.full(NUM_CLASSES, -np.log(NUM_CLASSES))
 
 
 from .bernoulli import BernoulliNB
 from .gauss import GaussianNB
 from .multinomial import MultinomialNB
-

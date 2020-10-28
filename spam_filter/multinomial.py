@@ -7,10 +7,8 @@ from spam_filter import (
     SMOOTH_ALPHA,
 )
 
-
 class MultinomialNB:
     """ Multinomial Naive Bayes """
-
     class_log_prior: np.ndarray
     feature_log_prob: np.ndarray
 

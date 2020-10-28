@@ -1,83 +1,63 @@
-import math
-import os
+import math, os, numpy as np
 from collections import Counter
 from pathlib import Path
 from typing import List
-from sklearn.naive_bayes import BernoulliNB as FeelTheBern
-import numpy as np
 
 from spam_filter import BernoulliNB, GaussianNB, MultinomialNB
 
 
 def main():
-
     test_file_path = Path("test-mails")
     train_file_path = Path("train-mails")
     files = list(train_file_path.iterdir())
 
-    # ---------------------------------------------------------------------------- #
-    #                        Count total words per all files                       #
-    # ---------------------------------------------------------------------------- #
-
+    # Count total words per all files
     word_counter = Counter()
     for file in files:
         text = file.read_text()
         word_list = parse_message(text)
         word_counter += Counter(word_list)
 
-    print(f"The maximum of most_common can be: {len(word_counter)}")
-
-    # ---------------------------------------------------------------------------- #
-    #                               Compute common                                 #
-    # ---------------------------------------------------------------------------- #
-
+    # Compute common
     common_map = [w for w, _ in word_counter.most_common(3000)]
 
+    # Training feature matrix
     train_features = generate_features(common_map, train_file_path)
 
-    # training labels
+    # Training labels
     train_labels = np.zeros(len(files))
     train_labels[train_labels.size // 2 : train_labels.size] = 1.0
-
+    
     files = list(test_file_path.iterdir())
-    # testing feature matrix
+
+    # Testing feature matrix
     test_features = generate_features(common_map, test_file_path)
 
-    # testing labels
+    # Testing labels
     test_labels = np.zeros(len(files))
-    test_labels[test_labels.size // 2 : test_labels.size] = 1.0
-    import ipdb
+    c = 0
+    for file in files:
+        if "spm" in os.path.basename(file):
+            test_labels[c] = 1
+        c += 1
 
-    # ---------------------------------------------------------------------------- #
-    #                                  Runner Code                                 #
-    # ---------------------------------------------------------------------------- #
-
-    # Multinomial Naive Bayes
+    # Run Multinomial Naive Bayes
     multinomial = MultinomialNB(train_features, train_labels)
     classes = multinomial.predict(test_features)
     error = (test_labels == classes).sum()
     print("Multinomial Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
-    # Bernoulli Naive Bayes start
+    # Run Bernoulli Naive Bayes
     bernoulli = BernoulliNB(train_features, train_labels)
     classes = bernoulli.predict(test_features)
-
     error = (test_labels == classes).sum()
+    print("Bernoulli Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
-    print("Bernoulli Naive Bayes:: {:.2f}%".format(error / test_labels.shape[0] * 100))
-
-    # Bernoulli Naive Bayes end
-
-    # Gaussian Naive Bayes start
-    gauss = GaussianNB()
-    gauss.GaussianNB(train_features, train_labels)
-    classes = gauss.GaussianNB_predict(test_features)
-    error = 0
-    for i in range(len(files)):
-        if test_labels[i] == classes[i]:
-            error += 1
-    print("Gaussian Naive Bayes: ", float(error) / float(len(test_labels)))
-    # Gaussian Naive Bayes end
+    # Run Gaussian Naive Bayes
+    gaussian = GaussianNB(train_features, train_labels)
+    classes = gaussian.predict(test_features)
+    error = (test_labels == classes).sum()
+    print("Gaussian Naive Bayes: {:.2f}%".format(error / test_labels.shape[0] * 100))
 
 
 def parse_message(text: str) -> List[str]:
@@ -117,7 +97,7 @@ def generate_features(common_map: List[str], path: Path) -> List[List[str]]:
         for key in common_map:
             if key in word_counter:
                 features[file_index][common_index] = word_counter[key]
-
+                
             common_index += 1
         file_index += 1
     return features
