@@ -33,21 +33,21 @@ def main():
     multinomial = MultinomialNB(train_features, train_labels)
     multinomial.predict(test_features)
 
-    print("Multinomial execution time: {0:.2f}".format(time.time() - start_time))
+    print("Multinomial execution time: {0:.3f}".format(time.time() - start_time))
     start_time = time.time()
 
     # Bernoulli Naive Bayes
     bernoulli = BernoulliNB(train_features, train_labels)
     bernoulli.predict(test_features)
 
-    print("Bernoulli execution time: {0:.2f}".format(time.time() - start_time))
+    print("Bernoulli execution time: {0:.3f}".format(time.time() - start_time))
     start_time = time.time()
 
     # Gaussian Naive Bayes
     gaussian = GaussianNB(train_features, train_labels)
     gaussian.predict(test_features)
 
-    print("Gaussian execution time: {0:.2f}".format(time.time() - start_time))
+    print("Gaussian execution time: {0:.3f}".format(time.time() - start_time))
     start_time = time.time()
 
     # SKLearn Multinomial Naive Bayes
@@ -55,7 +55,7 @@ def main():
     multinomial_sklearn.fit(train_features, train_labels)
     classes_sklearn = multinomial_sklearn.predict(test_features)
 
-    print("SKLearn Multinomial execution time: {0:.2f}".format(time.time() - start_time))
+    print("SKLearn Multinomial execution time: {0:.3f}".format(time.time() - start_time))
     start_time = time.time()
 
     # SKLearn Bernoulli Naive Bayes
@@ -63,7 +63,7 @@ def main():
     bernoulli_sklearn.fit(train_features, train_labels)
     bernoulli_sklearn.predict(test_features)
 
-    print("SKLearn Bernoulli execution time: {0:.2f}".format(time.time() - start_time))
+    print("SKLearn Bernoulli execution time: {0:.3f}".format(time.time() - start_time))
     start_time = time.time()
 
     # SKLearn Gaussian Naive Bayes
@@ -71,7 +71,7 @@ def main():
     gaussian_sklearn.fit(train_features, train_labels)
     gaussian_sklearn.predict(test_features)
 
-    print("SKLearn Gaussian execution time: {0:.2f}".format(time.time() - start_time))
+    print("SKLearn Gaussian execution time: {0:.3f}".format(time.time() - start_time))
 
 
 if __name__ == "__main__":
