@@ -1,34 +1,22 @@
 import math, enum, numpy as np
-
-
-class Classification(enum.Enum):
-    HAM = 0
-    SPAM = 1
-
-
-NUM_CLASSES = len(Classification)
-MOST_COMMON_WORD = 3000
-SMOOTH_ALPHA = 1.0
-
+from spam_filter import (
+    generate_class_log_prior,
+    Classification,
+    NUM_CLASSES,
+    MOST_COMMON_WORD,
+    SMOOTH_ALPHA,
+)
 
 class MultinomialNB:
     """ Multinomial Naive Bayes """
-
     class_log_prior: np.ndarray
     feature_log_prob: np.ndarray
 
     def __init__(self, features: np.array, labels: np.array):
         """ Trains the model using Multinomial NB. """
-        self.class_log_prior = np.zeros(NUM_CLASSES, dtype=np.float64)
         self.feature_log_prob = np.zeros((NUM_CLASSES, MOST_COMMON_WORD))
-
         # Get distribution of ham vs spam in training set.
-        self.class_log_prior[Classification.HAM.value] = math.log(
-            np.sum(labels == Classification.HAM.value)
-        )
-        self.class_log_prior[Classification.SPAM.value] = math.log(
-            np.sum(labels == Classification.SPAM.value)
-        )
+        self.class_log_prior = generate_class_log_prior(labels)
 
         # Numerator of conditional probabilty
         ham_words = np.tile(SMOOTH_ALPHA, MOST_COMMON_WORD)
